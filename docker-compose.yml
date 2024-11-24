@@ -1,0 +1,9 @@
+version: '3.8'
+services:
+  server:
+    build: ./
+    container_name: node_server_container
+    ports:
+      - '8000:8000'
+    volumes:
+      - ./:/app

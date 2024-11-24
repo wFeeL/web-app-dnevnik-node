@@ -1,16 +1,4 @@
 const puppeteer = require("puppeteer");
-exports.index = function(req, res){
-    let data = ''
-    fetchCookies().then((cookies) => {
-        if (cookies) {
-            console.log("Cookies:", cookies[0]);
-            data = 'message';
-        }
-    });
-    req.session.data = data
-    console.log(req.session.data)
-    return res.render('index');
-};
 
 exports.index = async function (req, res) {
     const cookies = await fetchCookies();
@@ -24,7 +12,12 @@ exports.index = async function (req, res) {
 };
 
 async function fetchCookies() {
-    const browser = await puppeteer.launch({ headless: false });
+    const browser = await puppeteer.launch({
+        headless: true,
+        defaultViewport: null,
+        executablePath: '/usr/bin/google-chrome',
+        args: ['--no-sandbox']
+    });
     const page = await browser.newPage();
 
     try {
@@ -41,6 +34,7 @@ async function fetchCookies() {
 
         const cookies = await page.cookies();
         console.log("Success for take cookies");
+        console.log(cookies);
 
         await browser.close();
 
