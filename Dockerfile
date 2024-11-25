@@ -1,25 +1,44 @@
-FROM node:slim
+FROM node:20.11.1
 
-# We don't need the standalone Chromium
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
+# Install the latest Chrome dev package and necessary fonts and libraries
+RUN apt-get update && apt-get install -y wget gnupg \
+    && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /usr/share/keyrings/googlechrome-linux-keyring.gpg \
+    && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/googlechrome-linux-keyring.gpg] https://dl-ssl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google.list \
+    && apt-get update \
+    && apt-get install -y google-chrome-stable \
+      fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-khmeros fonts-kacst fonts-freefont-ttf \
+      libxss1 dbus dbus-x11 libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 libxcomposite1 libxrandr2 libgbm1 \
+      libpango1.0-0 libasound2 libwayland-client0 libwayland-cursor0 libwayland-egl1 xdg-utils \
+      --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/* \
 
-# Install Google Chrome Stable and fonts
-# Note: this installs the necessary libs to make the browser work with Puppeteer.
-RUN apt-get update && apt-get install gnupg wget -y && \
-  wget --quiet --output-document=- https://dl-ssl.google.com/linux/linux_signing_key.pub | gpg --dearmor > /etc/apt/trusted.gpg.d/google-archive.gpg && \
-  sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' && \
-  apt-get update && \
-  apt-get install google-chrome-stable -y --no-install-recommends && \
-  rm -rf /var/lib/apt/lists/*
-WORKDIR /app
-COPY ./ /app
-COPY package.json .
+# Verify the installation of google-chrome-stable
+RUN which google-chrome-stable || true
 
-RUN npm install
-RUN npm i puppeteer
-RUN npm i @puppeteer/browsers@0.2.0
-RUN npm i puppeteer-core
+# Update apt-get and install xvfb separately for diagnostics
+RUN apt-get update && apt-get install -y xvfb --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/*
 
+
+# Set the working directory
+WORKDIR /home/apify
+
+# Copy package.json and package-lock.json
+COPY package*.json ./
+
+# Install Puppeteer without downloading bundled Chromium
+RUN npm install puppeteer-core --no-save
+
+# Set environment variables for Puppeteer
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
+    PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome \
+    DISPLAY=:99
+
+# Copy the rest of the application code
+COPY . .
+
+# Expose port and set start command
 EXPOSE 8000
 
-CMD [ "npm", "start" ]
+# Start Xvfb and run the application
+CMD ["sh", "-c", "Xvfb :99 -screen 0 1024x768x16 & npm start"]
