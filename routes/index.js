@@ -56,11 +56,9 @@
 //         await browser.close();
 //     }
 // }
-
+const puppeteer = require('puppeteer');
+require('dotenv').config();
 exports.index = async function (req, res) {
-    const puppeteer = require('puppeteer');
-    require('dotenv').config();
-
     const browser = await puppeteer.launch({
         headless: true,
         defaultViewport: null,
@@ -75,10 +73,8 @@ exports.index = async function (req, res) {
     });
     const page = await browser.newPage();
 
-// Navigate the page to a URL.
     await page.goto('https://developer.chrome.com/');
-
-// Set screen size.
+    console.log("go to the site")
     await page.setViewport({width: 1080, height: 1024});
 
 // Type into search box.
