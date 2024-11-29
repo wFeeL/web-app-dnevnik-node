@@ -25,7 +25,7 @@ async function fetchCookies() {
             '--disable-accelerated-2d-canvas',
             '--disable-gpu',
             '--no-zygote',
-            '--single-process'
+            // '--single-process'
         ]
     });
     const page = await browser.newPage();
