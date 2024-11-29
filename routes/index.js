@@ -40,7 +40,6 @@ async function fetchCookies() {
 
         await page.waitForFunction(
             () => document.cookie.includes("X-JWT-Token"),
-            { timeout: 30000 }
         );
 
         const cookies = await page.cookies();
