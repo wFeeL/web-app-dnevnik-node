@@ -13,13 +13,13 @@ app.use(session({
     saveUninitialized: true,
     cookie: { secure: false }
 }));
-app.set('port', 8000);
+const port = process.env.PORT || 8000;
 app.set('views', join(__dirname, 'views'));
 app.set('view engine', 'pug');
 app.get('/', index.index);
 app.get('/login', login.login);
 
 
-http.createServer(app).listen(app.get('port'), function(){
+http.createServer(app).listen(port, function(){
     console.log('Express server listening on port ' + app.get('port'));
 });
