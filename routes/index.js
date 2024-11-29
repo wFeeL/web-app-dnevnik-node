@@ -1,5 +1,5 @@
 const puppeteer = require("puppeteer");
-
+require("dotenv").config()
 exports.index = async function (req, res) {
     const cookies = await fetchCookies();
 
@@ -15,7 +15,9 @@ async function fetchCookies() {
     const browser = await puppeteer.launch({
         headless: true,
         defaultViewport: null,
-        executablePath: '/usr/bin/google-chrome',
+        executablePath:
+        process.env.NODE_ENV === "production" ? process.env.PUPPETEER_EXECUTABLE_PATH : puppeteer.executablePath(),
+        // executablePath: '/usr/bin/google-chrome',
         args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
