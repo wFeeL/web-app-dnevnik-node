@@ -34,15 +34,15 @@ async function fetchCookies() {
 
     try {
         console.log("Open Dnevnik...");
-        await page.goto("https://ya.ru", {
-            waitUntil: "networkidle2",
+        await page.goto("https://www.google.com/", {
+            // waitUntil: "networkidle2",
         });
 
         console.log("Wait for authorization...");
 
-        await page.waitForFunction(
-            () => document.cookie.includes("X-JWT-Token"),
-        );
+        // await page.waitForFunction(
+        //     () => document.cookie.includes("X-JWT-Token"),
+        // );
 
         const cookies = await page.cookies();
         console.log("Success for take cookies");
